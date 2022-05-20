@@ -94,9 +94,9 @@ gam_pred_ints<-function(fit_gam,new_dat,quants){
 }
 
 #function to evaluate performance of GAM model (produces daily forecasts)
-test_model<-function(series,minyr,leaveout,leave_yrs,iter,Y,S,n){
-  for(i in 1:iter){ 
-    last_yr = max(series$year) - (iter-i+1)
+test_model<-function(series,minyr,leaveout,leave_yrs,Y,S,n){
+  for(i in 1:leave_yrs){ 
+    last_yr = max(series$year) - (leave_yrs-i+1)
     
     tdat<-series%>%
       mutate(train_test=ifelse(year > last_yr & yday > (S-leaveout), 1, 0))%>%
@@ -151,9 +151,9 @@ test_model<-function(series,minyr,leaveout,leave_yrs,iter,Y,S,n){
 
 
 #function to evaluate performance of SARIMA model (produces season total forecasts only)
-test_model2<-function(series,minyr,leaveout,leave_yrs,iter,Y,S,n){
-  for(i in 1:iter){ 
-    last_yr = max(series$year) - (iter-i+1)
+test_model2<-function(series,minyr,leaveout,leave_yrs,Y,S,n){
+  for(i in 1:leave_yrs){ 
+    last_yr = max(series$year) - (leave_yrs-i+1)
     tdat<-series%>%
       mutate(train_test=ifelse(year > last_yr & yday > (S-leaveout), 1, 0),
              period=ifelse(yday > (S-leaveout), 2,1)
@@ -259,7 +259,7 @@ int<-4 #log mean daily abundance
 #forecasting params
 #==================
 leaveout<-35 # days of season to leave out of forecast
-iter<- 10
+leave_yrs<- 10
 ```
 
 ## Simulate Data
@@ -281,7 +281,7 @@ ggplot(series%>%group_by(year)%>%summarise(abundance=sum(abundance),.groups = "k
 ## GAM results
 
 ```{r Analysis_v1, message=FALSE, warning=FALSE, results="show"}
-results<-test_model(series=series,minyr=minyr,leaveout=leaveout,leave_yrs=leave_yrs,iter=iter,Y=Y,S=S,n=n)
+results<-test_model(series=series,minyr=minyr,leaveout=leaveout,leave_yrs=leave_yrs,Y=Y,S=S,n=n)
 results<-results%>%
   mutate(pct_error=(error/abundance)*100)
 
@@ -296,7 +296,7 @@ print(paste0("MAPE = ",mean(abs(results$pct_error))))
 ## SARIMA results
 
 ```{r Analysis_v2, message=FALSE, warning=FALSE, results="show"}
-results2<-test_model2(series=series,minyr=minyr,leaveout=leaveout,leave_yrs=leave_yrs,iter=iter,Y=Y,S=S,n=n)
+results2<-test_model2(series=series,minyr=minyr,leaveout=leaveout,leave_yrs=leave_yrs,Y=Y,S=S,n=n)
 results2<-results2%>%
   mutate(pct_error=(error/abundance)*100)
 
