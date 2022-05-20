@@ -117,10 +117,12 @@ test_model<-function(series,minyr,leaveout,leave_yrs,iter,Y,S,n){
 
     p<-ggplot(data=tdat,aes(x=date,y=abundance,group=year,color=factor(train_test)))+
       facet_wrap(~year,scales = "free_x")+
+      geom_ribbon(aes(ymin =`Lo 95`, ymax =`Hi 95`), color =NA,fill="cadet blue",alpha=0.5)+
+      geom_ribbon(aes(ymin =`Lo 50`, ymax =`Hi 50`), color =NA,fill="cadet blue",alpha=0.5)+
       geom_point()+
-      geom_ribbon(aes(ymin =`Lo 95`, ymax =`Hi 95`), color =NA,fill="grey",alpha=0.5)+
-      geom_line(mapping = aes(x=date,y=pred),color="blue")
-    #geom_line()
+      geom_line(mapping = aes(x=date,y=pred),color="cadet blue")+
+      theme_bw()
+
     print(p)
     
     tdat<-tdat%>%
